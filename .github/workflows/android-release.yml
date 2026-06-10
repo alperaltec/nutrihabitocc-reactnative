@@ -1,0 +1,67 @@
+name: Despliegue Android por Etiquetas (Tags)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del proyecto
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calcular variables de versión
+        id: vars
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/v}
+          echo "VERSION_NAME=$TAG_NAME" >> $GITHUB_ENV
+          VERSION_CODE=$(git rev-list --count HEAD)
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Instalar Dependencias de JavaScript
+        run: npm ci
+
+      - name: Generar Bundle de Expo
+        run: npx expo export:embed --platform android --dev false --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+
+      - name: Reconstruir Keystore de producción
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/mi-clave-subida.keystore
+
+      - name: Reconstruir JSON de Google Play
+        run: |
+          echo '${{ secrets.ANDROID_PLAY_STORE_JSON }}' > android/app/google-play-key.json
+
+      - name: Configurar Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: 'android'
+
+      - name: Executar Fastlane Deployment
+        working-directory: android
+        env:
+          MYAPP_RELEASE_STORE_FILE: "mi-clave-subida.keystore"
+          MYAPP_RELEASE_KEY_ALIAS: "nutrihabitocc"
+          MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.KEYSTORE_PASSWORD }}"
+          MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.KEYSTORE_PASSWORD }}"
+          NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
+          NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
+        run: bundle exec fastlane upload_internal
