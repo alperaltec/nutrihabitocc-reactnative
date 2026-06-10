@@ -39,3 +39,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+
+mi-clave-subida.keystore
+google-play-key.json
+android/app/mi-clave-subida.keystore
+android/app/google-play-key.json
