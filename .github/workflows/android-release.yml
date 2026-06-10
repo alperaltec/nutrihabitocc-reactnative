@@ -52,6 +52,7 @@ jobs:
       - name: Ejecutar Fastlane Deployment
         working-directory: android
         env:
+          GEM_HOME: ${{ github.workspace }}/android/vendor/bundle
           MYAPP_RELEASE_STORE_FILE: "mi-clave-subida.keystore"
           MYAPP_RELEASE_KEY_ALIAS: "${{ secrets.ANDROID_KEY_ALIAS }}"
           MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
@@ -59,7 +60,7 @@ jobs:
           NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
           NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
         run: |
-          gem install bundler -N
+          gem install bundler --user-install
           bundle config set --local path 'vendor/bundle'
           bundle install
           bundle exec fastlane upload_internal
