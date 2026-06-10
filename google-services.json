@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "970789030877",
+    "project_id": "nutrihabitocc-f2ddc",
+    "storage_bucket": "nutrihabitocc-f2ddc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970789030877:android:737793f70ace9134c0c434",
+        "android_client_info": {
+          "package_name": "org.universalworldtechnologyec.nutrihabitoccmovil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-v1bwMeEoJx3P9ukqcTouDn-Is6d6b_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
