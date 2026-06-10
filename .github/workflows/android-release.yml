@@ -49,15 +49,7 @@ jobs:
         run: |
           echo "${{ secrets.GOOGLE_PLAY_API_JSON }}" > android/app/google-play-key.json
 
-      - name: Configurar Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-          working-directory: 'android'
-
       - name: Ejecutar Fastlane Deployment
-        working-directory: android
         env:
           MYAPP_RELEASE_STORE_FILE: "mi-clave-subida.keystore"
           MYAPP_RELEASE_KEY_ALIAS: "${{ secrets.ANDROID_KEY_ALIAS }}"
@@ -65,4 +57,8 @@ jobs:
           MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.ANDROID_KEY_PASSWORD }}"
           NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
           NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
-        run: bundle exec fastlane upload_internal
+        run: |
+          cd android
+          gem install bundler -N
+          bundle install
+          bundle exec fastlane upload_internal
