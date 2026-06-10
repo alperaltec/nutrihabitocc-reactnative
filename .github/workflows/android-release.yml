@@ -19,7 +19,8 @@ jobs:
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/v}
           echo "VERSION_NAME=$TAG_NAME" >> $GITHUB_ENV
-          VERSION_CODE=$(git rev-list --count HEAD)
+          COMMITS_ACTUALES=$(git rev-list --count HEAD)
+          VERSION_CODE=$((COMMITS_ACTUALES + 70))
           echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
 
       - name: Configurar JDK 17
@@ -46,22 +47,22 @@ jobs:
 
       - name: Reconstruir JSON de Google Play
         run: |
-          echo '${{ secrets.ANDROID_PLAY_STORE_JSON }}' > android/app/google-play-key.json
+          echo "${{ secrets.GOOGLE_PLAY_API_JSON }}" > android/app/google-play-key.json
 
       - name: Configurar Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
-          gemfile: 'android/Gemfile'
+          working-directory: 'android'
 
-      - name: Executar Fastlane Deployment
+      - name: Ejecutar Fastlane Deployment
         working-directory: android
         env:
           MYAPP_RELEASE_STORE_FILE: "mi-clave-subida.keystore"
-          MYAPP_RELEASE_KEY_ALIAS: "nutrihabitocc"
-          MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.KEYSTORE_PASSWORD }}"
-          MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.KEYSTORE_PASSWORD }}"
+          MYAPP_RELEASE_KEY_ALIAS: "${{ secrets.ANDROID_KEY_ALIAS }}"
+          MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+          MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.ANDROID_KEY_PASSWORD }}"
           NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
           NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
         run: bundle exec fastlane upload_internal
