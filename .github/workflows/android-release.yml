@@ -59,6 +59,7 @@ jobs:
           NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
           NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
         run: |
+          gem install bundler -N
           bundle config set --local path 'vendor/bundle'
           bundle install
           bundle exec fastlane upload_internal
