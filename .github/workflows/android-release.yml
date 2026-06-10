@@ -64,4 +64,4 @@ jobs:
           MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.KEYSTORE_PASSWORD }}"
           NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
           NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
-        run: bundle exec fastlane upload_internal
+        run: cd android && bundle exec fastlane upload_internal
