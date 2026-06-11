@@ -59,7 +59,20 @@ jobs:
           NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
           NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
         run: |
+          # MODO DETECTIVE: Listar archivos para ver si existe el Gemfile
+          echo "Contenido de la carpeta actual:"
+          ls -la
+          
+          # 1. Instalar bundler
           gem install bundler --user-install
           export PATH=$PATH:/home/runner/.local/share/gem/ruby/3.2.0/bin
-          bundle install --gemfile=Gemfile
-          bundle exec fastlane upload_internal
+          
+          # 2. Intentar instalar
+          if [ -f "Gemfile" ]; then
+            echo "Gemfile encontrado, instalando..."
+            bundle install
+            bundle exec fastlane upload_internal
+          else
+            echo "¡ERROR CRÍTICO! No se encontró el archivo Gemfile en esta carpeta."
+            exit 1
+          fi
