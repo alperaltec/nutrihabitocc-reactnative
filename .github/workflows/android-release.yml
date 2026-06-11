@@ -49,7 +49,7 @@ jobs:
         run: |
           echo "${{ secrets.GOOGLE_PLAY_API_JSON }}" > android/app/google-play-key.json
 
-      - name: Ejecutar Fastlane Deployment
+      - name: Configurar Fastlane y Desplegar
         working-directory: android
         env:
           MYAPP_RELEASE_STORE_FILE: "mi-clave-subida.keystore"
@@ -59,20 +59,17 @@ jobs:
           NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
           NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
         run: |
-          # MODO DETECTIVE: Listar archivos para ver si existe el Gemfile
-          echo "Contenido de la carpeta actual:"
-          ls -la
+          # 1. Crear el Gemfile directamente en el servidor virtual
+          echo 'source "https://rubygems.org"' > Gemfile
+          echo 'gem "fastlane"' >> Gemfile
           
-          # 1. Instalar bundler
-          gem install bundler --user-install
-          export PATH=$PATH:/home/runner/.local/share/gem/ruby/3.2.0/bin
+          # 2. Configurar e instalar Fastlane localmente en la carpeta del proyecto sin requerir sudo
+          export GEM_HOME=$HOME/.gems
+          export PATH=$GEM_HOME/bin:$PATH
+          gem install bundler -N
           
-          # 2. Intentar instalar
-          if [ -f "Gemfile" ]; then
-            echo "Gemfile encontrado, instalando..."
-            bundle install
-            bundle exec fastlane upload_internal
-          else
-            echo "¡ERROR CRÍTICO! No se encontró el archivo Gemfile en esta carpeta."
-            exit 1
-          fi
+          bundle config set --local path 'vendor/bundle'
+          bundle install
+          
+          # 3. Ejecutar el despliegue a producción
+          bundle exec fastlane upload_internal
