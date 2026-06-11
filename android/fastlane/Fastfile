@@ -1,35 +1,35 @@
 # This file contains the fastlane.tools configuration
 # You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
 
 default_platform(:android)
 
 platform :android do
   desc "Compilar y subir version a prueba interna"
   lane :upload_internal do
+    
+    # 1. Compilar el archivo .aab (Bundle) usando las credenciales inyectadas de GitHub
     build_android_app(
       task: "bundle",
-      build_type: "Release"
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => ENV["MYAPP_RELEASE_STORE_FILE"],
+        "android.injected.signing.store.password" => ENV["MYAPP_RELEASE_STORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["MYAPP_RELEASE_KEY_ALIAS"],
+        "android.injected.signing.key.password" => ENV["MYAPP_RELEASE_KEY_PASSWORD"],
+        "android.injected.version.code" => ENV["NEW_VERSION_CODE"],
+        "android.injected.version.name" => ENV["NEW_VERSION_NAME"]
+      }
     )
+    
+    # 2. Subir el archivo generado a la Play Store en la pista interna
     upload_to_play_store(
       track: 'internal',
-      json_key: 'app/google-play-key.json',
+      json_key: 'android/app/google-play-key.json', # Ruta exacta donde GitHub Actions reconstruye el JSON
+      package_name: 'org.universalworldtechnologyec.nutrihabitoccmovil', # Asegúrate de que este sea el applicationId exacto de tu app
       skip_upload_apk: true,
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true
     )
   end
-
 end
