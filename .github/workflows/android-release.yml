@@ -52,7 +52,8 @@ jobs:
       - name: Configurar Fastlane y Desplegar
         working-directory: android
         env:
-          MYAPP_RELEASE_STORE_FILE: "mi-clave-subida.keystore"
+          # CAMBIO CLAVE: Le damos la ruta absoluta exacta a Gradle para que encuentre el Keystore
+          MYAPP_RELEASE_STORE_FILE: "${{ github.workspace }}/android/app/mi-clave-subida.keystore"
           MYAPP_RELEASE_KEY_ALIAS: "${{ secrets.ANDROID_KEY_ALIAS }}"
           MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
           MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.ANDROID_KEY_PASSWORD }}"
