@@ -47,7 +47,8 @@ jobs:
 
       - name: Reconstruir JSON de Google Play
         run: |
-          echo "${{ secrets.GOOGLE_PLAY_API_JSON }}" > android/app/google-play-key.json
+          # SOLUCIÓN: Decodificar la credencial API para asegurar un formato JSON intacto
+          echo "${{ secrets.GOOGLE_PLAY_API_JSON }}" | base64 --decode > android/app/google-play-key.json
 
       - name: Configurar Fastlane y Desplegar
         working-directory: android
@@ -85,7 +86,7 @@ jobs:
               )
               upload_to_play_store(
                 track: "internal",
-                json_key: "app/google-play-key.json", # CORRECCIÓN: Fastlane ya está dentro de 'android/', así que busca directamente en 'app/'
+                json_key: "app/google-play-key.json",
                 package_name: "org.universalworldtechnologyec.nutrihabitoccmovil"
               )
             end
