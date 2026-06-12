@@ -52,7 +52,6 @@ jobs:
       - name: Configurar Fastlane y Desplegar
         working-directory: android
         env:
-          # CAMBIO CLAVE: Le damos la ruta absoluta exacta a Gradle para que encuentre el Keystore
           MYAPP_RELEASE_STORE_FILE: "${{ github.workspace }}/android/app/mi-clave-subida.keystore"
           MYAPP_RELEASE_KEY_ALIAS: "${{ secrets.ANDROID_KEY_ALIAS }}"
           MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
@@ -64,7 +63,36 @@ jobs:
           echo 'source "https://rubygems.org"' > Gemfile
           echo 'gem "fastlane"' >> Gemfile
           
-          # 2. Configurar e instalar Fastlane localmente en la carpeta del proyecto sin requerir sudo
+          # 2. Crear la carpeta fastlane y escribir el script de despliegue
+          mkdir -p fastlane
+          cat << 'EOF' > fastlane/Fastfile
+          default_platform(:android)
+
+          platform :android do
+            desc "Compilar y subir version a prueba interna"
+            lane :upload_internal do
+              gradle(
+                task: "bundle",
+                build_type: "Release",
+                properties: {
+                  "android.injected.signing.store.file" => ENV["MYAPP_RELEASE_STORE_FILE"],
+                  "android.injected.signing.store.password" => ENV["MYAPP_RELEASE_STORE_PASSWORD"],
+                  "android.injected.signing.key.alias" => ENV["MYAPP_RELEASE_KEY_ALIAS"],
+                  "android.injected.signing.key.password" => ENV["MYAPP_RELEASE_KEY_PASSWORD"],
+                  "android.injected.version.code" => ENV["NEW_VERSION_CODE"],
+                  "android.injected.version.name" => ENV["NEW_VERSION_NAME"]
+                }
+              )
+              upload_to_play_store(
+                track: "internal",
+                json_key: "app/google-play-key.json", # CORRECCIÓN: Fastlane ya está dentro de 'android/', así que busca directamente en 'app/'
+                package_name: "org.universalworldtechnologyec.nutrihabitoccmovil"
+              )
+            end
+          end
+          EOF
+          
+          # 3. Configurar e instalar Fastlane localmente
           export GEM_HOME=$HOME/.gems
           export PATH=$GEM_HOME/bin:$PATH
           gem install bundler -N
@@ -72,5 +100,5 @@ jobs:
           bundle config set --local path 'vendor/bundle'
           bundle install
           
-          # 3. Ejecutar el despliegue a producción
+          # 4. Ejecutar el despliegue a producción
           bundle exec fastlane upload_internal
