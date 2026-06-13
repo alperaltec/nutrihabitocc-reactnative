@@ -14,18 +14,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Calcular variables de versión desde el Tag
-        id: vars
-        run: |
-          # 1. Extraer el nombre limpio para el usuario (Ej: v1.0.5 -> 1.0.5)
-          TAG_NAME=${GITHUB_REF#refs/tags/v}
-          echo "VERSION_NAME=$TAG_NAME" >> $GITHUB_ENV
-          
-          # 2. Quitar los puntos del Tag para crear el código numérico de Google
-          # Ejemplo: Si usas el tag v115 -> VERSION_CODE de Google será 115
-          # Ejemplo: Si usas el tag v1.2.3 -> VERSION_CODE de Google será 123
-          CLEAN_CODE=$(echo "$TAG_NAME" | tr -d '.')
-          echo "VERSION_CODE=$CLEAN_CODE" >> $GITHUB_ENV
+      # Quitamos el paso de calcular variables matemáticas obsoletas
 
       - name: Configurar JDK 17
         uses: actions/setup-java@v4
@@ -51,7 +40,6 @@ jobs:
 
       - name: Reconstruir JSON de Google Play
         run: |
-          # SOLUCIÓN: Decodificar la credencial API para asegurar un formato JSON intacto
           echo "${{ secrets.GOOGLE_PLAY_API_JSON }}" | base64 --decode > android/app/google-play-key.json
 
       - name: Configurar Fastlane y Desplegar
@@ -61,14 +49,12 @@ jobs:
           MYAPP_RELEASE_KEY_ALIAS: "${{ secrets.ANDROID_KEY_ALIAS }}"
           MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
           MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.ANDROID_KEY_PASSWORD }}"
-          NEW_VERSION_CODE: ${{ env.VERSION_CODE }}
-          NEW_VERSION_NAME: ${{ env.VERSION_NAME }}
         run: |
           # 1. Crear el Gemfile directamente en el servidor virtual
           echo 'source "https://rubygems.org"' > Gemfile
           echo 'gem "fastlane"' >> Gemfile
           
-          # 2. Crear la carpeta fastlane y escribir el script de despliegue
+          # 2. Crear la carpeta fastlane y escribir el script de despliegue sin propiedades forzadas
           mkdir -p fastlane
           cat << 'EOF' > fastlane/Fastfile
           default_platform(:android)
@@ -83,9 +69,8 @@ jobs:
                   "android.injected.signing.store.file" => ENV["MYAPP_RELEASE_STORE_FILE"],
                   "android.injected.signing.store.password" => ENV["MYAPP_RELEASE_STORE_PASSWORD"],
                   "android.injected.signing.key.alias" => ENV["MYAPP_RELEASE_KEY_ALIAS"],
-                  "android.injected.signing.key.password" => ENV["MYAPP_RELEASE_KEY_PASSWORD"],
-                  "android.injected.version.code" => ENV["NEW_VERSION_CODE"],
-                  "android.injected.version.name" => ENV["NEW_VERSION_NAME"]
+                  "android.injected.signing.key.password" => ENV["MYAPP_RELEASE_KEY_PASSWORD"]
+                  # Eliminamos las líneas que sobreescribían el versionCode y versionName
                 }
               )
               upload_to_play_store(

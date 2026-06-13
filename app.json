@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nutrihabitocc",
     "slug": "nutrihabitoccmovilexpo",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "plugins": [
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
@@ -22,7 +22,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "org.universalworldtechnologyec.nutrihabitoccmovil",
       "appDelegateLanguage": "objc",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "versionCode": 100
     },
     "android": {
       "adaptiveIcon": {
