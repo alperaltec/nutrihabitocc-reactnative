@@ -14,8 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Quitamos el paso de calcular variables matemáticas obsoletas
-
       - name: Configurar JDK 17
         uses: actions/setup-java@v4
         with:
@@ -49,12 +47,13 @@ jobs:
           MYAPP_RELEASE_KEY_ALIAS: "${{ secrets.ANDROID_KEY_ALIAS }}"
           MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
           MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.ANDROID_KEY_PASSWORD }}"
+          # Forzamos el número que necesites subir a Google Play
+          NEW_VERSION_CODE: "150"
+          NEW_VERSION_NAME: "1.0.1"
         run: |
-          # 1. Crear el Gemfile directamente en el servidor virtual
           echo 'source "https://rubygems.org"' > Gemfile
           echo 'gem "fastlane"' >> Gemfile
           
-          # 2. Crear la carpeta fastlane y escribir el script de despliegue sin propiedades forzadas
           mkdir -p fastlane
           cat << 'EOF' > fastlane/Fastfile
           default_platform(:android)
@@ -66,11 +65,12 @@ jobs:
                 task: "bundle",
                 build_type: "Release",
                 properties: {
-                  "android.injected.signing.store.file" => ENV["MYAPP_RELEASE_STORE_FILE"],
-                  "android.injected.signing.store.password" => ENV["MYAPP_RELEASE_STORE_PASSWORD"],
-                  "android.injected.signing.key.alias" => ENV["MYAPP_RELEASE_KEY_ALIAS"],
-                  "android.injected.signing.key.password" => ENV["MYAPP_RELEASE_KEY_PASSWORD"]
-                  # Eliminamos las líneas que sobreescribían el versionCode y versionName
+                  "MYAPP_RELEASE_STORE_FILE" => ENV["MYAPP_RELEASE_STORE_FILE"],
+                  "MYAPP_RELEASE_STORE_PASSWORD" => ENV["MYAPP_RELEASE_STORE_PASSWORD"],
+                  "MYAPP_RELEASE_KEY_ALIAS" => ENV["MYAPP_RELEASE_KEY_ALIAS"],
+                  "MYAPP_RELEASE_KEY_PASSWORD" => ENV["MYAPP_RELEASE_KEY_PASSWORD"],
+                  "NEW_VERSION_CODE" => ENV["NEW_VERSION_CODE"],
+                  "NEW_VERSION_NAME" => ENV["NEW_VERSION_NAME"]
                 }
               )
               upload_to_play_store(
@@ -82,7 +82,6 @@ jobs:
           end
           EOF
           
-          # 3. Configurar e instalar Fastlane localmente
           export GEM_HOME=$HOME/.gems
           export PATH=$GEM_HOME/bin:$PATH
           gem install bundler -N
@@ -90,5 +89,4 @@ jobs:
           bundle config set --local path 'vendor/bundle'
           bundle install
           
-          # 4. Ejecutar el despliegue a producción
           bundle exec fastlane upload_internal

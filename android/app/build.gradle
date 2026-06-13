@@ -92,8 +92,8 @@ android {
         applicationId 'org.universalworldtechnologyec.nutrihabitoccmovil'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode project.hasProperty('NEW_VERSION_CODE') ? project.property('NEW_VERSION_CODE').toInteger() : 2
+        versionName project.hasProperty('NEW_VERSION_NAME') ? project.property('NEW_VERSION_NAME').toString() : "1.0.1"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
