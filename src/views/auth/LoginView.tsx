@@ -92,8 +92,8 @@ const LoginView = () => {
         render={({ field: { onChange, onBlur, value } }) => (
           <CustomInput
             variantText='titleMedium'
-            title='Contrasena'
-            placeholder="password"
+            title='Contraseña'
+            placeholder="contraseña"
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}

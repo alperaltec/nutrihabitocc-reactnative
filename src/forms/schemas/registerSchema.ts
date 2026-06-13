@@ -20,8 +20,8 @@ export const registerSchema = z
     phone_number: z
       .string()
       .regex(
-        /^\+?[1-9]\d{7,14}$/,
-        'Número inválido'
+        /^\d{7,15}$/,
+        'Número inválido (solo se permiten entre 7 y 15 números)'
       ),
 
     password: z

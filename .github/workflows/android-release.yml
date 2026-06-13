@@ -48,8 +48,8 @@ jobs:
           MYAPP_RELEASE_STORE_PASSWORD: "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
           MYAPP_RELEASE_KEY_PASSWORD: "${{ secrets.ANDROID_KEY_PASSWORD }}"
           # Forzamos el número que necesites subir a Google Play
-          NEW_VERSION_CODE: "150"
-          NEW_VERSION_NAME: "1.0.1"
+          NEW_VERSION_CODE: "151"
+          NEW_VERSION_NAME: "1.0.2"
         run: |
           echo 'source "https://rubygems.org"' > Gemfile
           echo 'gem "fastlane"' >> Gemfile

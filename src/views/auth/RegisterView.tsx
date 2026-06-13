@@ -123,7 +123,7 @@ const RegisterView = () => {
             <Controller
               control={control}
               render={({ field: { onChange, onBlur, value } }) => (
-                <CustomInput variantText='titleMedium' title='Teléfono' placeholder="+593994301399" onBlur={onBlur} onChangeText={onChange} value={value} errorText={errors.phone_number?.message} />
+                <CustomInput variantText='titleMedium' title='Teléfono' placeholder="0995667688" onBlur={onBlur} onChangeText={onChange} value={value} errorText={errors.phone_number?.message} />
               )}
               name="phone_number"
             />
